@@ -56,6 +56,12 @@ class X509CertificateFactory {
 
   public static Certificate get(final AgentProxy agentProxy, final Identity identity,
                                 final String username) {
+    return get(new SshAgentContentSigner(agentProxy, identity), identity, username);
+  }
+
+  static Certificate get(final SshAgentContentSigner signer,
+                         final Identity identity,
+                         final String username) {
     final UUID uuid = new UUID();
     final Calendar calendar = Calendar.getInstance();
     final X500Name issuerDN = new X500Name("C=US,O=Spotify,CN=helios-client");
@@ -90,8 +96,7 @@ class X509CertificateFactory {
                            new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyCertSign));
       builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(false));
 
-      final X509CertificateHolder holder = builder.build(new SshAgentContentSigner(agentProxy,
-                                                                                   identity));
+      final X509CertificateHolder holder = builder.build(signer);
 
       return new Certificate(new org.bouncycastle.asn1.x509.Certificate[] {
           holder.toASN1Structure(),

@@ -29,6 +29,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Returns a signed hash of any arbitrary data by sending it to the local SSH agent.
  */
@@ -37,14 +39,23 @@ class SshAgentContentSigner implements ContentSigner {
   private static final AlgorithmIdentifier IDENTIFIER =
       new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
 
-  private final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream stream;
 
   private final AgentProxy agentProxy;
   private final Identity identity;
 
   public SshAgentContentSigner(final AgentProxy agentProxy, final Identity identity) {
-    this.agentProxy = agentProxy;
-    this.identity = identity;
+    this.agentProxy = checkNotNull(agentProxy);
+    this.identity = checkNotNull(identity);
+    this.stream = new ByteArrayOutputStream();
+  }
+
+  SshAgentContentSigner(final AgentProxy agentProxy,
+                               final Identity identity,
+                               final ByteArrayOutputStream stream) {
+    this.agentProxy = checkNotNull(agentProxy);
+    this.identity = checkNotNull(identity);
+    this.stream = checkNotNull(stream);
   }
 
   @Override
