@@ -28,10 +28,11 @@ public class Client {
   }
 
   void run() throws Exception {
+    HttpsURLConnection.setDefaultSSLSocketFactory(socketFactory);
+
     URL url = new URL("https://x-deleteme-a1.noa.cloud.spotify.net");
     URLConnection conn = url.openConnection();
 
-    HttpsURLConnection.setDefaultSSLSocketFactory(socketFactory);
     System.out.println(new String(ByteStreams.toByteArray(conn.getInputStream())));
   }
 
