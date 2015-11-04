@@ -5,7 +5,7 @@
   <groupId>com.spotify</groupId>
   <artifactId>ssh-tls-client</artifactId>
   <version>0.1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <name>ssh-tls-client</name>
   <description>A Java library that does a TLS handshake by using SSH keys.</description>
   <url>https://github.com/spotify/ssh-tls-client</url>
@@ -37,6 +37,11 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
+
+  <modules>
+    <module>cert-validator-endpoint</module>
+  </modules>
+
 
   <developers>
     <developer>
