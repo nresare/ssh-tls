@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.spotify.sshtls.validator;
+package com.spotify.sshtls.example;
 
 import com.spotify.daemon.MainLoop;
+import com.spotify.sshtls.validator.FileKeyProvider;
+import com.spotify.sshtls.validator.KeyProvider;
+import com.spotify.sshtls.validator.ValidatorResource;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -27,7 +30,7 @@ import java.net.URI;
 /**
  * A simple standalone main class for the validator jersey endpoint.
  */
-public class SimpleMain {
+public class ValidatorJerseyMain {
   private static final int PORT = 62911;
 
 

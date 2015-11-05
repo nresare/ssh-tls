@@ -41,6 +41,7 @@
   <modules>
     <module>client</module>
     <module>validator</module>
+    <module>example</module>
   </modules>
 
 

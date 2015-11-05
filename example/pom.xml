@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>ssh-tls-validator</artifactId>
+  <artifactId>ssh-tls-example</artifactId>
 
   <parent>
     <groupId>com.spotify</groupId>
@@ -13,15 +13,24 @@
   </parent>
   <dependencies>
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>2.0.1</version>
+      <groupId>com.spotify</groupId>
+      <artifactId>ssh-tls-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.spotify</groupId>
+      <artifactId>ssh-tls-validator</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>2.6</version>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.spotify</groupId>
+      <artifactId>daemon</artifactId>
+      <version>1.2.0</version>
     </dependency>
   </dependencies>
 </project>
