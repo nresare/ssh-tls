@@ -17,6 +17,7 @@
 package com.spotify.sshtls.validator;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -44,17 +45,23 @@ public class ValidatorResource {
   @POST
   public Response handleAuth(String body) {
     X509Certificate cert;
-    try {
-      cert = CertTool.parse(body);
-    } catch (CertificateException e) {
-      throw new RuntimeException("Failure to parse cert from POST body", e);
-    }
+    cert = parse(body);
     final String username = getUID(cert.getSubjectDN().toString());
     PublicKey key = keyProvider.getKey(username);
     if (key == null || !cert.getPublicKey().equals(key)) {
       return Response.status(404).build();
     }
     return Response.ok().header("User", username).build();
+  }
+
+  @VisibleForTesting
+  static X509Certificate parse(String input) {
+    byte[] bytes = input.getBytes(Charsets.UTF_8);
+    try {
+      return X509Certificate.getInstance(bytes);
+    } catch (CertificateException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @VisibleForTesting

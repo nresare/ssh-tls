@@ -38,10 +38,10 @@ import java.util.regex.Pattern;
  */
 public class SSHKeyParser {
 
-  static final KeyFactory rsaKeyFactory;
+  static final KeyFactory RSA_KEY_FACTORY;
   static {
     try {
-      rsaKeyFactory = KeyFactory.getInstance("RSA");
+      RSA_KEY_FACTORY = KeyFactory.getInstance("RSA");
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Can't understand RSA keys, your env is broken", e);
     }
@@ -57,6 +57,7 @@ public class SSHKeyParser {
    *
    * @param key a public key string as found in id_rsa.pub
    * @return an RSAPublicKeySpec
+   * @throws InvalidKeyException if the provided key contain an invalid key
    */
   public static PublicKey parseOpenSSHPubKey(final String key) throws InvalidKeyException {
     Matcher matcher = PUBLIC_KEY_PATTERN.matcher(key);
@@ -81,7 +82,7 @@ public class SSHKeyParser {
     final BigInteger exp = new BigInteger(expBytes);
     final BigInteger mod = new BigInteger(modBytes);
     try {
-      return rsaKeyFactory.generatePublic(new RSAPublicKeySpec(mod, exp));
+      return RSA_KEY_FACTORY.generatePublic(new RSAPublicKeySpec(mod, exp));
     } catch (InvalidKeySpecException e) {
       throw new RuntimeException(e);
     }

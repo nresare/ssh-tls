@@ -42,7 +42,9 @@ public class SshAgentSSLSocketFactory extends SSLSocketFactory {
 
   /**
    * @param username The username to set in the UID field of generated X509 certificates.
-   * @throws IOException Should never be thrown.
+   * @param agentProxy the AgentProxy instance used to communicate with the local ssh agent
+   * @param identity the Identity instance that uniquely identifies the ssh key to use
+   * @throws IOException Should never be thrown
    */
   public SshAgentSSLSocketFactory(final AgentProxy agentProxy, final Identity identity,
                                   final String username)
