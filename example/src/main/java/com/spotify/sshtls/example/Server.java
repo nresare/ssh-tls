@@ -32,6 +32,44 @@ import java.security.cert.X509Certificate;
  */
 public class Server {
 
+  private static class MyKeyManager extends X509ExtendedKeyManager {
+    final X509KeyManager inner;
+
+    public MyKeyManager(X509KeyManager inner) {
+      this.inner = inner;
+    }
+
+    @Override
+    public String[] getClientAliases(String s, Principal[] principals) {
+      return inner.getClientAliases(s, principals);
+    }
+
+    @Override
+    public String chooseClientAlias(String[] strings, Principal[] principals, Socket socket) {
+      return inner.chooseClientAlias(strings, principals, socket);
+    }
+
+    @Override
+    public String[] getServerAliases(String s, Principal[] principals) {
+      return inner.getServerAliases(s, principals);
+    }
+
+    @Override
+    public String chooseServerAlias(String s, Principal[] principals, Socket socket) {
+      return inner.chooseServerAlias(s, principals, socket);
+    }
+
+    @Override
+    public X509Certificate[] getCertificateChain(String s) {
+      return inner.getCertificateChain(s);
+    }
+
+    @Override
+    public PrivateKey getPrivateKey(String s) {
+      return inner.getPrivateKey(s);
+    }
+  }
+
   public static void main(String[] args) throws Exception {
 
     // setup the socket address
@@ -63,7 +101,7 @@ public class Server {
 
     // setup the HTTPS context and parameters
     KeyManager[] kms = kmf.getKeyManagers();
-    kms = new KeyManager[] {kms[0]};
+    kms = new KeyManager[] {new MyKeyManager((X509ExtendedKeyManager)kms[0])};
     sslContext.init(kms, new TrustManager[0], null);
     httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
 
