@@ -1,0 +1,4 @@
+dependencies:
+  override:
+    - mvn clean install -T 2 -Dmaven.javadoc.skip=true -DskipTests=true -B -V
+
