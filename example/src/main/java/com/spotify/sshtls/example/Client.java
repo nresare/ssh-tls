@@ -43,7 +43,8 @@ public class Client {
       throw new RuntimeException("You have no keys in the ssh-agent");
     }
     Identity firstIdentity = identities.get(0);
-    socketFactory = new SshAgentSSLSocketFactory(agentProxy, firstIdentity, System.getenv("USER"));
+    socketFactory = new SshAgentSSLSocketFactory(
+        agentProxy, firstIdentity, System.getProperty("user.name"));
   }
 
   void run() throws Exception {
