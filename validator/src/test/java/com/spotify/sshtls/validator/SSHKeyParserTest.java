@@ -18,11 +18,20 @@ package com.spotify.sshtls.validator;
 
 import com.google.common.io.BaseEncoding;
 import org.junit.Test;
+import sun.security.pkcs.PKCS8Key;
 
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 
@@ -51,6 +60,23 @@ public class SSHKeyParserTest {
     PublicKey expected = keyFactory.generatePublic(publicKeySpec);
     PublicKey actual = SSHKeyParser.parseOpenSSHPubKey(PKCS1_PEM_PUBLIC_KEY);
     assertEquals(expected, actual);
+  }
+
+  private static final Pattern PRIVATE_KEY_PATTERN =
+      Pattern.compile("^-+BEGIN RSA PRIVATE KEY-+([^-]+)-+END RSA PRIVATE KEY[-\n]+$");
+  //Pattern.compile(".*(R.A).*", Pattern.DOTALL);
+
+  @Test
+  public void noaPlayTest() throws Exception {
+    String s = new String(Files.readAllBytes(Paths.get("/Users/noa/slask/cert/localhost.key")));
+
+    Matcher m = PRIVATE_KEY_PATTERN.matcher(s);
+    if (!m.matches()) {
+      throw new RuntimeException("Invalid cert format: "+ s);
+    }
+
+
+    System.out.println(new PKCS8EncodedKeySpec(Base64.getMimeDecoder().decode(m.group(1))));
   }
 
 }

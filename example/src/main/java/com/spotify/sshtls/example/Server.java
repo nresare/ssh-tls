@@ -3,27 +3,14 @@ package com.spotify.sshtls.example;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpsConfigurator;
-import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
-import sun.security.x509.X509Key;
 
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509ExtendedKeyManager;
-import javax.net.ssl.X509KeyManager;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.security.KeyStore;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 
 /**
  * A simple proof of concept HTTPS Server.
@@ -32,43 +19,6 @@ import java.security.cert.X509Certificate;
  */
 public class Server {
 
-  private static class MyKeyManager extends X509ExtendedKeyManager {
-    final X509KeyManager inner;
-
-    public MyKeyManager(X509KeyManager inner) {
-      this.inner = inner;
-    }
-
-    @Override
-    public String[] getClientAliases(String s, Principal[] principals) {
-      return inner.getClientAliases(s, principals);
-    }
-
-    @Override
-    public String chooseClientAlias(String[] strings, Principal[] principals, Socket socket) {
-      return inner.chooseClientAlias(strings, principals, socket);
-    }
-
-    @Override
-    public String[] getServerAliases(String s, Principal[] principals) {
-      return inner.getServerAliases(s, principals);
-    }
-
-    @Override
-    public String chooseServerAlias(String s, Principal[] principals, Socket socket) {
-      return inner.chooseServerAlias(s, principals, socket);
-    }
-
-    @Override
-    public X509Certificate[] getCertificateChain(String s) {
-      return inner.getCertificateChain(s);
-    }
-
-    @Override
-    public PrivateKey getPrivateKey(String s) {
-      return inner.getPrivateKey(s);
-    }
-  }
 
   public static void main(String[] args) throws Exception {
 
@@ -89,20 +39,11 @@ public class Server {
 
     SSLContext sslContext = SSLContext.getInstance("TLS");
 
-    // initialise the keystore
-    char[] password = "simulator".toCharArray();
-    KeyStore ks = KeyStore.getInstance("JKS");
-    FileInputStream fis = new FileInputStream("example/localhost.ks");
-    ks.load(fis, password);
+    SimpleKeyManager skm = new SimpleKeyManager(
+        new File("/Users/noa/slask/cert/localhost.crt"),
+        new File("/Users/noa/slask/cert/localhost.key"));
 
-    // setup the key manager factory
-    KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-    kmf.init(ks, password);
-
-    // setup the HTTPS context and parameters
-    KeyManager[] kms = kmf.getKeyManagers();
-    kms = new KeyManager[] {new MyKeyManager((X509ExtendedKeyManager)kms[0])};
-    sslContext.init(kms, new TrustManager[0], null);
+    sslContext.init(new KeyManager[] {skm}, new TrustManager[0], null);
     httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
 
     httpsServer.start();
