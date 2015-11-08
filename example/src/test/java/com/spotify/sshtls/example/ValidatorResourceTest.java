@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.spotify.sshtls.validator;
+package com.spotify.sshtls.example;
 
+import com.spotify.sshtls.validator.FileKeyProvider;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -30,19 +31,11 @@ import static org.junit.Assert.assertEquals;
  */
 
 public class ValidatorResourceTest {
-  @Test
-  public void testGetUID() {
-    assertEquals("stack", ValidatorResource.getUID("uid=stack,cn=users,dc=spotify,dc=net"));
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void testGetUIDNoUID() {
-    ValidatorResource.getUID("cn=Test,cn=users,dc=spotify,dc=net");
-  }
 
   @Test
   public void testHandleAuthNotFound() throws IOException {
-    ValidatorResource vr = new ValidatorResource(new FileKeyProvider("src/test/resources/keys"));
+    ValidatorResource vr = new ValidatorResource(
+        new FileKeyProvider("../validator/src/test/resources/keys"));
     String crt = new String(Files.readAllBytes(Paths.get("src/test/resources/test_noa.crt")));
     Response r = vr.handleAuth(crt);
     assertEquals(404, r.getStatus());
@@ -50,7 +43,8 @@ public class ValidatorResourceTest {
 
   @Test
   public void testHandleAuth() throws IOException {
-    ValidatorResource vr = new ValidatorResource(new FileKeyProvider("src/test/resources/keys"));
+    ValidatorResource vr = new ValidatorResource(
+        new FileKeyProvider("../validator/src/test/resources/keys"));
     String crt = new String(Files.readAllBytes(Paths.get("src/test/resources/test_alice.crt")));
     Response r = vr.handleAuth(crt);
     assertEquals(200, r.getStatus());

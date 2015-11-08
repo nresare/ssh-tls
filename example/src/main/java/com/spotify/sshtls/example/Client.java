@@ -34,7 +34,7 @@ import java.util.List;
 public class Client {
   final SshAgentSSLSocketFactory socketFactory;
 
-  private static final String REMOTE_URL = "https://some.service";
+  private static final String REMOTE_URL = "https://localhost:4247";
 
   private Client() throws IOException {
     AgentProxy agentProxy = AgentProxies.newInstance();

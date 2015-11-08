@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.spotify.sshtls.validator;
+package com.spotify.sshtls.example;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
+import com.spotify.sshtls.validator.KeyProvider;
+import com.spotify.sshtls.validator.Validator;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
-import javax.security.cert.CertificateException;
-import javax.security.cert.X509Certificate;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import java.security.PublicKey;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
 /**
  * A Jersey resource that implements cert checking backed by ssh public key files on disk
@@ -35,48 +35,39 @@ import java.security.PublicKey;
 @Path("/")
 public class ValidatorResource {
 
-  private final KeyProvider keyProvider;
+  private final Validator validator;
+  private static final CertificateFactory CERTIFICATE_FACTORY;
+
+  static {
+    try {
+      CERTIFICATE_FACTORY = CertificateFactory.getInstance("X509");
+    } catch (CertificateException e) {
+      throw new RuntimeException("Your environment is broken, doesn't know about X509 certs");
+    }
+  }
 
   public ValidatorResource(KeyProvider keyProvider) {
-    this.keyProvider = keyProvider;
+    this.validator = new Validator(keyProvider);
   }
 
   @Path("/_auth")
   @POST
   public Response handleAuth(String body) {
-    X509Certificate cert;
-    cert = parse(body);
-    final String username = getUID(cert.getSubjectDN().toString());
-    PublicKey key = keyProvider.getKey(username);
-    if (key == null || !cert.getPublicKey().equals(key)) {
+    String user = validator.validate(parse(body));
+    if (user == null) {
       return Response.status(404).build();
     }
-    return Response.ok().header("User", username).build();
+    return Response.ok().header("User", user).build();
   }
 
   @VisibleForTesting
   static X509Certificate parse(String input) {
-    byte[] bytes = input.getBytes(Charsets.UTF_8);
+    InputStream is = new ByteArrayInputStream(input.getBytes());
     try {
-      return X509Certificate.getInstance(bytes);
+      return (X509Certificate) CERTIFICATE_FACTORY.generateCertificate(is);
     } catch (CertificateException e) {
       throw new RuntimeException(e);
     }
   }
 
-  @VisibleForTesting
-  static String getUID(String dn) {
-    try {
-      LdapName ln = new LdapName(dn);
-      for (Rdn rdn : ln.getRdns()) {
-        if (rdn.getType().equalsIgnoreCase("UID")) {
-          return rdn.getValue().toString();
-        }
-      }
-      throw new RuntimeException("DN doesn't contain an UID field: " + dn);
-    } catch (InvalidNameException e) {
-      throw new RuntimeException("failed to parse DN: " + dn, e);
-    }
-
-  }
 }
